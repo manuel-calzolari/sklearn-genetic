@@ -2,6 +2,8 @@
 
 Genetic feature selection module for scikit-learn
 
+Genetic algorithms mimic the process of natural selection to search for optimal values of a function.
+
 ## Installation
 
 ```bash
@@ -35,8 +37,14 @@ def main():
 
     selector = GeneticSelectionCV(estimator,
                                   cv=5,
-                                  verbose=True,
+                                  verbose=1,
                                   scoring="accuracy",
+                                  n_population=50,
+                                  crossover_proba=0.5,
+                                  mutation_proba=0.2,
+                                  n_generations=40,
+                                  mutation_independent_proba=0.05,
+                                  tournament_size=3,
                                   caching=True,
                                   n_jobs=-1)
     selector = selector.fit(X, y)
