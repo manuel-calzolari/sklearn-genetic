@@ -121,6 +121,9 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
     n_generations : int, default=40
         Number of generations for the genetic algorithm.
 
+    crossover_independent_proba : float, default=0.1
+        Independent probability of crossover for the genetic algorithm.
+
     mutation_independent_proba : float, default=0.05
         Independent probability of mutation for the genetic algorithm.
 
@@ -162,7 +165,8 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
     def __init__(self, estimator, cv=None, scoring=None,
                  estimator_params=None, fit_params=None, verbose=0, n_jobs=1,
                  n_population=300, crossover_proba=0.5, mutation_proba=0.2, n_generations=40,
-                 mutation_independent_proba=0.05, tournament_size=3, caching=False):
+                 crossover_independent_proba=0.1, mutation_independent_proba=0.05,
+                 tournament_size=3, caching=False):
         self.estimator = estimator
         self.cv = cv
         self.scoring = scoring
@@ -174,6 +178,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         self.crossover_proba = crossover_proba
         self.mutation_proba = mutation_proba
         self.n_generations = n_generations
+        self.crossover_independent_proba = crossover_independent_proba
         self.mutation_independent_proba = mutation_independent_proba
         self.tournament_size = tournament_size
         self.caching = caching
@@ -225,7 +230,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         toolbox.register("evaluate", _evalFunction, gaobject=self, estimator=estimator, X=X, y=y,
                          cv=cv, scorer=scorer, verbose=self.verbose, fit_params=self.fit_params,
                          caching=self.caching)
-        toolbox.register("mate", tools.cxTwoPoint)
+        toolbox.register("mate", tools.cxUniform, indpb=self.crossover_independent_proba)
         toolbox.register("mutate", tools.mutFlipBit, indpb=self.mutation_independent_proba)
         toolbox.register("select", tools.selTournament, tournsize=self.tournament_size)
 

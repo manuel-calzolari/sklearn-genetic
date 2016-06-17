@@ -43,6 +43,7 @@ def main():
                                   crossover_proba=0.5,
                                   mutation_proba=0.2,
                                   n_generations=40,
+                                  crossover_independent_proba=0.5,
                                   mutation_independent_proba=0.05,
                                   tournament_size=3,
                                   caching=True,
