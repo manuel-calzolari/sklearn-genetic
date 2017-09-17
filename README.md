@@ -12,7 +12,7 @@ pip install git+https://github.com/manuel-calzolari/sklearn-genetic.git
 
 ## Requirements
 * Python >= 2.7
-* scikit-learn >= 0.17.1
+* scikit-learn >= 0.18
 * DEAP >= 1.0.2
 
 ## Example

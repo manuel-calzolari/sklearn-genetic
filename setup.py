@@ -8,5 +8,5 @@ setup(name='sklearn-genetic',
       author='Manuel Calzolari',
       author_email='',
       license='GPLv3',
-      install_requires=['scikit-learn>=0.17.1', 'deap>=1.0.2'],
+      install_requires=['scikit-learn>=0.18', 'deap>=1.0.2'],
       packages=find_packages())

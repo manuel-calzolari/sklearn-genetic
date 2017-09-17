@@ -15,7 +15,6 @@
 
 """Genetic algorithm for feature selection"""
 
-import warnings
 import multiprocessing
 import random
 import numpy as np
@@ -25,12 +24,8 @@ from sklearn.base import BaseEstimator
 from sklearn.base import MetaEstimatorMixin
 from sklearn.base import clone
 from sklearn.base import is_classifier
-try:
-    from sklearn.cross_validation import check_cv
-    from sklearn.cross_validation import _fit_and_score
-except ImportError:
-    from sklearn.model_selection import check_cv
-    from sklearn.model_selection._validation import _fit_and_score
+from sklearn.model_selection import check_cv
+from sklearn.model_selection._validation import _fit_and_score
 from sklearn.metrics.scorer import check_scoring
 from sklearn.feature_selection.base import SelectorMixin
 from sklearn.externals.joblib import cpu_count
@@ -53,10 +48,10 @@ def _evalFunction(individual, gaobject, estimator, X, y, cv, scorer, verbose, fi
         return gaobject.scores_cache[individual_tuple], individual_sum
     X_selected = X[:, np.array(individual, dtype=np.bool)]
     scores = []
-    for train, test in cv:
-        score, _, _ = _fit_and_score(estimator=estimator, X=X_selected, y=y, scorer=scorer,
-                                     train=train, test=test, verbose=verbose, parameters=None,
-                                     fit_params=fit_params)
+    for train, test in cv.split(X, y):
+        score = _fit_and_score(estimator=estimator, X=X_selected, y=y, scorer=scorer,
+                               train=train, test=test, verbose=verbose, parameters=None,
+                               fit_params=fit_params)
         scores.append(score)
     scores_mean = np.mean(scores)
     if caching:
@@ -92,11 +87,6 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         A string (see model evaluation documentation) or
         a scorer callable object / function with signature
         ``scorer(estimator, X, y)``.
-
-    estimator_params : dict
-        Parameters for the external estimator.
-        This attribute is deprecated as of version 0.16 and will be removed in
-        0.18. Use estimator initialisation or set_params method instead.
 
     fit_params : dict, optional
         Parameters to pass to the fit method.
@@ -162,15 +152,13 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
     array([ True  True  True  True False False False False False False False False
            False False False False False False False False False False False False], dtype=bool)
     """
-    def __init__(self, estimator, cv=None, scoring=None,
-                 estimator_params=None, fit_params=None, verbose=0, n_jobs=1,
+    def __init__(self, estimator, cv=None, scoring=None, fit_params=None, verbose=0, n_jobs=1,
                  n_population=300, crossover_proba=0.5, mutation_proba=0.2, n_generations=40,
                  crossover_independent_proba=0.1, mutation_independent_proba=0.05,
                  tournament_size=3, caching=False):
         self.estimator = estimator
         self.cv = cv
         self.scoring = scoring
-        self.estimator_params = estimator_params
         self.fit_params = fit_params
         self.verbose = verbose
         self.n_jobs = n_jobs
@@ -205,20 +193,11 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
     def _fit(self, X, y):
         X, y = check_X_y(X, y, "csr")
         # Initialization
-        cv = check_cv(self.cv, X, y, is_classifier(self.estimator))
+        cv = check_cv(self.cv, y, is_classifier(self.estimator))
         scorer = check_scoring(self.estimator, scoring=self.scoring)
         n_features = X.shape[1]
 
-        if self.estimator_params is not None:
-            warnings.warn("The parameter 'estimator_params' is deprecated as "
-                          "of version 0.16 and will be removed in 0.18. The "
-                          "parameter is no longer necessary because the value "
-                          "is set via the estimator initialisation or "
-                          "set_params method.", DeprecationWarning)
-
         estimator = clone(self.estimator)
-        if self.estimator_params:
-            estimator.set_params(**self.estimator_params)
 
         # Genetic Algorithm
         toolbox = base.Toolbox()
@@ -259,8 +238,6 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         # Set final attributes
         support_ = np.array(hof, dtype=np.bool)[0]
         self.estimator_ = clone(self.estimator)
-        if self.estimator_params:
-            self.estimator_.set_params(**self.estimator_params)
         self.estimator_.fit(X[:, support_], y)
 
         self.n_features_ = support_.sum()
