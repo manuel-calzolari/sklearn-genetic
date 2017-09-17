@@ -18,6 +18,7 @@ pip install git+https://github.com/manuel-calzolari/sklearn-genetic.git
 ## Example
 
 ```python
+from __future__ import print_function
 import numpy as np
 from sklearn import datasets, linear_model
 
@@ -50,7 +51,7 @@ def main():
                                   n_jobs=-1)
     selector = selector.fit(X, y)
 
-    print selector.support_
+    print(selector.support_)
 
 
 if __name__ == "__main__":
