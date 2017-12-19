@@ -234,6 +234,9 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         algorithms.eaSimple(pop, toolbox, cxpb=self.crossover_proba, mutpb=self.mutation_proba,
                             ngen=self.n_generations, stats=stats, halloffame=hof,
                             verbose=self.verbose)
+        
+        pool.close()
+        pool.join()
 
         # Set final attributes
         support_ = np.array(hof, dtype=np.bool)[0]
