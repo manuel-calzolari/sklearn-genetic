@@ -131,6 +131,9 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
     support_ : array of shape [n_features]
         The mask of selected features.
 
+    generation_scores_ : array of shape [n_generations]
+        The maximum cross-validation score for each generation.
+
     estimator_ : object
         The external estimator fit on the reduced dataset.
 
@@ -231,9 +234,9 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         if self.verbose > 0:
             print("Selecting features with genetic algorithm.")
 
-        algorithms.eaSimple(pop, toolbox, cxpb=self.crossover_proba, mutpb=self.mutation_proba,
-                            ngen=self.n_generations, stats=stats, halloffame=hof,
-                            verbose=self.verbose)
+        _, log = algorithms.eaSimple(pop, toolbox, cxpb=self.crossover_proba,
+                                     mutpb=self.mutation_proba, ngen=self.n_generations,
+                                     stats=stats, halloffame=hof, verbose=self.verbose)
         if self.n_jobs != 1:
             pool.close()
             pool.join()
@@ -243,6 +246,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         self.estimator_ = clone(self.estimator)
         self.estimator_.fit(X[:, support_], y)
 
+        self.generation_scores_ = np.array([fitness for fitness, _ in log.select("max")])
         self.n_features_ = support_.sum()
         self.support_ = support_
 
