@@ -18,6 +18,7 @@
 import multiprocessing
 import random
 import numpy as np
+import numbers
 from sklearn.utils import check_X_y
 from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.base import BaseEstimator
@@ -39,9 +40,10 @@ creator.create("Fitness", base.Fitness, weights=(1.0, -1.0))
 creator.create("Individual", list, fitness=creator.Fitness)
 
 
-def _evalFunction(individual, gaobject, estimator, X, y, cv, scorer, verbose, fit_params, caching):
+def _evalFunction(individual, gaobject, estimator, X, y, cv, scorer, verbose, fit_params,
+                  max_features, caching):
     individual_sum = np.sum(individual, axis=0)
-    if individual_sum == 0:
+    if individual_sum == 0 or individual_sum > max_features:
         return -10000, individual_sum
     individual_tuple = tuple(individual)
     if caching and individual_tuple in gaobject.scores_cache:
@@ -90,6 +92,9 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
 
     fit_params : dict, optional
         Parameters to pass to the fit method.
+
+    max_features : int or None, optional
+        The maximum number of features selected.
 
     verbose : int, default=0
         Controls verbosity of output.
@@ -155,14 +160,15 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
     array([ True  True  True  True False False False False False False False False
            False False False False False False False False False False False False], dtype=bool)
     """
-    def __init__(self, estimator, cv=None, scoring=None, fit_params=None, verbose=0, n_jobs=1,
-                 n_population=300, crossover_proba=0.5, mutation_proba=0.2, n_generations=40,
-                 crossover_independent_proba=0.1, mutation_independent_proba=0.05,
-                 tournament_size=3, caching=False):
+    def __init__(self, estimator, cv=None, scoring=None, fit_params=None, max_features=None,
+                 verbose=0, n_jobs=1, n_population=300, crossover_proba=0.5, mutation_proba=0.2,
+                 n_generations=40, crossover_independent_proba=0.1,
+                 mutation_independent_proba=0.05, tournament_size=3, caching=False):
         self.estimator = estimator
         self.cv = cv
         self.scoring = scoring
         self.fit_params = fit_params
+        self.max_features = max_features
         self.verbose = verbose
         self.n_jobs = n_jobs
         self.n_population = n_population
@@ -200,6 +206,19 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         scorer = check_scoring(self.estimator, scoring=self.scoring)
         n_features = X.shape[1]
 
+        if self.max_features is not None:
+            if not isinstance(self.max_features, numbers.Integral):
+                raise TypeError("'max_features' should be an integer between 1 and {} features."
+                                "Got {!r} instead."
+                                .format(n_features, self.max_features))
+            elif self.max_features < 1 or self.max_features > n_features:
+                raise ValueError("'max_features' should be between 1 and {} features."
+                                 "Got {} instead."
+                                 .format(n_features, self.max_features))
+            max_features = self.max_features
+        else:
+            max_features = n_features
+
         estimator = clone(self.estimator)
 
         # Genetic Algorithm
@@ -211,7 +230,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
         toolbox.register("evaluate", _evalFunction, gaobject=self, estimator=estimator, X=X, y=y,
                          cv=cv, scorer=scorer, verbose=self.verbose, fit_params=self.fit_params,
-                         caching=self.caching)
+                         max_features=max_features, caching=self.caching)
         toolbox.register("mate", tools.cxUniform, indpb=self.crossover_independent_proba)
         toolbox.register("mutate", tools.mutFlipBit, indpb=self.mutation_independent_proba)
         toolbox.register("select", tools.selTournament, tournsize=self.tournament_size)
