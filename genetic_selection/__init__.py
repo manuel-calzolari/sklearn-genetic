@@ -209,11 +209,11 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         if self.max_features is not None:
             if not isinstance(self.max_features, numbers.Integral):
                 raise TypeError("'max_features' should be an integer between 1 and {} features."
-                                "Got {!r} instead."
+                                " Got {!r} instead."
                                 .format(n_features, self.max_features))
             elif self.max_features < 1 or self.max_features > n_features:
                 raise ValueError("'max_features' should be between 1 and {} features."
-                                 "Got {} instead."
+                                 " Got {} instead."
                                  .format(n_features, self.max_features))
             max_features = self.max_features
         else:

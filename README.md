@@ -34,12 +34,13 @@ def main():
     X = np.hstack((iris.data, E))
     y = iris.target
 
-    estimator = linear_model.LogisticRegression()
+    estimator = linear_model.LogisticRegression(solver="liblinear", multi_class="ovr")
 
     selector = GeneticSelectionCV(estimator,
                                   cv=5,
                                   verbose=1,
                                   scoring="accuracy",
+                                  max_features=5,
                                   n_population=50,
                                   crossover_proba=0.5,
                                   mutation_proba=0.2,
