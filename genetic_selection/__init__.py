@@ -216,7 +216,9 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         toolbox.register("mutate", tools.mutFlipBit, indpb=self.mutation_independent_proba)
         toolbox.register("select", tools.selTournament, tournsize=self.tournament_size)
 
-        if self.n_jobs > 1:
+        if self.n_jobs == 0:
+            raise ValueError("n_jobs == 0 has no meaning.")
+        elif self.n_jobs > 1:
             pool = multiprocessing.Pool(processes=self.n_jobs)
             toolbox.register("map", pool.map)
         elif self.n_jobs < 0:
