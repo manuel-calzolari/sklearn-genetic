@@ -7,6 +7,6 @@ setup(name='sklearn-genetic',
       url='http://github.com/manuel-calzolari/sklearn-genetic',
       author='Manuel Calzolari',
       author_email='',
-      license='GPLv3',
+      license='LGPLv3',
       install_requires=['scikit-learn>=0.18', 'deap>=1.0.2'],
       packages=find_packages())
