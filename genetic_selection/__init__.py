@@ -117,10 +117,10 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         Number of generations for the genetic algorithm.
 
     crossover_independent_proba : float, default=0.1
-        Independent probability of crossover for the genetic algorithm.
+        Independent probability for each attribute to be exchanged, for the genetic algorithm.
 
     mutation_independent_proba : float, default=0.05
-        Independent probability of mutation for the genetic algorithm.
+        Independent probability for each attribute to be mutated, for the genetic algorithm.
 
     tournament_size : int, default=3
         Tournament size for the genetic algorithm.
