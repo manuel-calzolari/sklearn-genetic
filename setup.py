@@ -5,6 +5,7 @@ setup(
     version='0.1',
     description='Genetic feature selection module for scikit-learn',
     url='https://github.com/manuel-calzolari/sklearn-genetic',
+    download_url='https://github.com/manuel-calzolari/sklearn-genetic/archive/0.1.tar.gz',
     author='Manuel Calzolari',
     classifiers=[
         'Development Status :: 4 - Beta',

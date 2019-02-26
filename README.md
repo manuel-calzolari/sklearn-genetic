@@ -7,7 +7,7 @@ Genetic algorithms mimic the process of natural selection to search for optimal 
 ## Installation
 
 ```bash
-pip install git+https://github.com/manuel-calzolari/sklearn-genetic.git
+pip install sklearn-genetic
 ```
 
 ## Requirements
