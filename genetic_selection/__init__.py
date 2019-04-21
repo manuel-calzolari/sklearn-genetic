@@ -17,8 +17,8 @@
 
 import multiprocessing
 import random
-import numpy as np
 import numbers
+import numpy as np
 from sklearn.utils import check_X_y
 from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.base import BaseEstimator
@@ -38,6 +38,70 @@ from deap import tools
 
 creator.create("Fitness", base.Fitness, weights=(1.0, -1.0))
 creator.create("Individual", list, fitness=creator.Fitness)
+
+
+def _eaFunction(population, toolbox, cxpb, mutpb, ngen, ngen_no_change=None, stats=None,
+                halloffame=None, verbose=0):
+    logbook = tools.Logbook()
+    logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
+
+    # Evaluate the individuals with an invalid fitness
+    invalid_ind = [ind for ind in population if not ind.fitness.valid]
+    fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+    for ind, fit in zip(invalid_ind, fitnesses):
+        ind.fitness.values = fit
+
+    if halloffame is not None:
+        halloffame.update(population)
+
+    record = stats.compile(population) if stats else {}
+    logbook.record(gen=0, nevals=len(invalid_ind), **record)
+    if verbose:
+        print(logbook.stream)
+
+    # Begin the generational process
+    wait = 0
+    for gen in range(1, ngen + 1):
+        # Select the next generation individuals
+        offspring = toolbox.select(population, len(population))
+
+        # Vary the pool of individuals
+        offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
+
+        # Evaluate the individuals with an invalid fitness
+        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+        fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+        for ind, fit in zip(invalid_ind, fitnesses):
+            ind.fitness.values = fit
+
+        # Get the previous best individual before updating the hall of fame
+        prev_best = halloffame[0]
+
+        # Update the hall of fame with the generated individuals
+        if halloffame is not None:
+            halloffame.update(offspring)
+
+        # Replace the current population by the offspring
+        population[:] = offspring
+
+        # Append the current generation statistics to the logbook
+        record = stats.compile(population) if stats else {}
+        logbook.record(gen=gen, nevals=len(invalid_ind), **record)
+        if verbose:
+            print(logbook.stream)
+
+        # If the new best individual is the same as the previous best individual,
+        # increment a counter, otherwise reset the counter
+        if halloffame[0] == prev_best:
+            wait += 1
+        else:
+            wait = 0
+
+        # If the counter reached the termination criteria, stop the optimization
+        if ngen_no_change is not None and wait >= ngen_no_change:
+            break
+
+    return population, logbook
 
 
 def _evalFunction(individual, gaobject, estimator, X, y, cv, scorer, verbose, fit_params,
@@ -125,6 +189,10 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
     tournament_size : int, default=3
         Tournament size for the genetic algorithm.
 
+    n_gen_no_change : int, default None
+        If set to a number, it will terminate optimization when best individual is not
+        changing in all of the previous ``n_gen_no_change`` number of generations.
+
     caching : boolean, default=False
         If True, scores of the genetic algorithm are cached.
 
@@ -153,7 +221,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
     >>> E = np.random.uniform(0, 0.1, size=(len(iris.data), 20))
     >>> X = np.hstack((iris.data, E))
     >>> y = iris.target
-    >>> estimator = linear_model.LogisticRegression()
+    >>> estimator = linear_model.LogisticRegression(solver="liblinear", multi_class="ovr")
     >>> selector = GeneticSelectionCV(estimator, cv=5)
     >>> selector = selector.fit(X, y)
     >>> selector.support_ # doctest: +NORMALIZE_WHITESPACE
@@ -163,7 +231,8 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
     def __init__(self, estimator, cv=None, scoring=None, fit_params=None, max_features=None,
                  verbose=0, n_jobs=1, n_population=300, crossover_proba=0.5, mutation_proba=0.2,
                  n_generations=40, crossover_independent_proba=0.1,
-                 mutation_independent_proba=0.05, tournament_size=3, caching=False):
+                 mutation_independent_proba=0.05, tournament_size=3, n_gen_no_change=None,
+                 caching=False):
         self.estimator = estimator
         self.cv = cv
         self.scoring = scoring
@@ -178,6 +247,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         self.crossover_independent_proba = crossover_independent_proba
         self.mutation_independent_proba = mutation_independent_proba
         self.tournament_size = tournament_size
+        self.n_gen_no_change = n_gen_no_change
         self.caching = caching
         self.scores_cache = {}
 
@@ -219,6 +289,11 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         else:
             max_features = n_features
 
+        if not isinstance(self.n_gen_no_change, (numbers.Integral, np.integer, type(None))):
+            raise ValueError("'n_gen_no_change' should either be None or an integer."
+                             " {} was passed."
+                             .format(self.n_gen_no_change))
+
         estimator = clone(self.estimator)
 
         # Genetic Algorithm
@@ -255,9 +330,9 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         if self.verbose > 0:
             print("Selecting features with genetic algorithm.")
 
-        _, log = algorithms.eaSimple(pop, toolbox, cxpb=self.crossover_proba,
-                                     mutpb=self.mutation_proba, ngen=self.n_generations,
-                                     stats=stats, halloffame=hof, verbose=self.verbose)
+        _, log = _eaFunction(pop, toolbox, cxpb=self.crossover_proba, mutpb=self.mutation_proba,
+                             ngen=self.n_generations, ngen_no_change=self.n_gen_no_change,
+                             stats=stats, halloffame=hof, verbose=self.verbose)
         if self.n_jobs != 1:
             pool.close()
             pool.join()

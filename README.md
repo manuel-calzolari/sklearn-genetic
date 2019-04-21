@@ -48,6 +48,7 @@ def main():
                                   crossover_independent_proba=0.5,
                                   mutation_independent_proba=0.05,
                                   tournament_size=3,
+                                  n_gen_no_change=10,
                                   caching=True,
                                   n_jobs=-1)
     selector = selector.fit(X, y)
