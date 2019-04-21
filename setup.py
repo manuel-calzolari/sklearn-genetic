@@ -10,12 +10,12 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='sklearn-genetic',
-    version='0.1',
+    version='0.2',
     description='Genetic feature selection module for scikit-learn',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/manuel-calzolari/sklearn-genetic',
-    download_url='https://github.com/manuel-calzolari/sklearn-genetic/archive/0.1.tar.gz',
+    download_url='https://github.com/manuel-calzolari/sklearn-genetic/archive/0.2.tar.gz',
     author='Manuel Calzolari',
     classifiers=[
         'Development Status :: 4 - Beta',
