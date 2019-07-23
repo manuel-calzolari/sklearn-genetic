@@ -60,3 +60,20 @@ if __name__ == "__main__":
     main()
 
 ```
+
+## Citing sklearn-genetic
+
+Manuel Calzolari. (2019, April 21). manuel-calzolari/sklearn-genetic: sklearn-genetic 0.2 (Version 0.2). Zenodo. http://doi.org/10.5281/zenodo.3348077
+
+BibTeX entry:
+```
+@misc{manuel_calzolari_2019_3348077,
+  author       = {Manuel Calzolari},
+  title        = {{manuel-calzolari/sklearn-genetic: sklearn-genetic 
+                   0.2}},
+  month        = apr,
+  year         = 2019,
+  doi          = {10.5281/zenodo.3348077},
+  url          = {https://doi.org/10.5281/zenodo.3348077}
+}
+```
