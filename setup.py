@@ -10,7 +10,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='sklearn-genetic',
-    version='0.2',
+    version='0.3',
     description='Genetic feature selection module for scikit-learn',
     long_description=long_description,
     long_description_content_type='text/markdown',
