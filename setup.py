@@ -33,6 +33,6 @@ setup(
         'Programming Language :: Python :: 3.7',
     ],
     packages=find_packages(),
-    python_requires='>=2.7',
-    install_requires=['scikit-learn>=0.18', 'deap>=1.0.2'],
+    python_requires='>=2.7, <3.8',
+    install_requires=['scikit-learn>=0.20', 'deap>=1.0.2'],
 )
