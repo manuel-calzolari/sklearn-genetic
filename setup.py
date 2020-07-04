@@ -10,7 +10,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='sklearn-genetic',
-    version='0.3',
+    version='0.3.1',
     description='Genetic feature selection module for scikit-learn',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -31,8 +31,13 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
     packages=find_packages(),
-    python_requires='>=2.7, <3.8',
-    install_requires=['scikit-learn>=0.20', 'deap>=1.0.2'],
+    python_requires='>=2.7',
+    install_requires=[
+        "scikit-learn>=0.20;python_version<'3.8'",
+        "scikit-learn>=0.22;python_version>='3.8'",
+        "deap>=1.0.2",
+    ],
 )

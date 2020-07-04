@@ -19,6 +19,7 @@ import multiprocessing
 import random
 import numbers
 import numpy as np
+import sklearn
 from sklearn.utils import check_X_y
 from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.base import BaseEstimator
@@ -27,13 +28,24 @@ from sklearn.base import clone
 from sklearn.base import is_classifier
 from sklearn.model_selection import check_cv
 from sklearn.model_selection._validation import _fit_and_score
-from sklearn.metrics.scorer import check_scoring
-from sklearn.feature_selection.base import SelectorMixin
+from sklearn.metrics import check_scoring
 from sklearn.utils._joblib import cpu_count
 from deap import algorithms
 from deap import base
 from deap import creator
 from deap import tools
+
+# SelectorMixin was made private in 0.22 and added back into the public API in 0.23
+# See https://scikit-learn.org/dev/whats_new/v0.23.html#sklearn-feature-selection
+if sklearn.__version__ < '0.22':
+    from sklearn.feature_selection.base import SelectorMixin
+elif (sklearn.__version__ >= '0.22') and (sklearn.__version__ < '0.23'):
+    from sklearn.feature_selection._base import SelectorMixin
+elif sklearn.__version__ >= '0.23':
+    from sklearn.feature_selection import SelectorMixin
+else:
+    raise RuntimeError('sklearn-genetic requires scikit-learn version>=0.20 installed '
+                       f'(version {sklearn.__version__} found)')
 
 
 creator.create("Fitness", base.Fitness, weights=(1.0, -1.0))
@@ -272,7 +284,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
     def _fit(self, X, y):
         X, y = check_X_y(X, y, "csr")
         # Initialization
-        cv = check_cv(self.cv, y, is_classifier(self.estimator))
+        cv = check_cv(cv=self.cv, y=y, classifier=is_classifier(self.estimator))
         scorer = check_scoring(self.estimator, scoring=self.scoring)
         n_features = X.shape[1]
 
