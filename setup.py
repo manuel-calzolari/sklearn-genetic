@@ -31,8 +31,9 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
     packages=find_packages(),
     python_requires='>=2.7',
-    install_requires=['scikit-learn>=0.18', 'deap>=1.0.2'],
+    install_requires=['scikit-learn>=0.20.3', 'deap>=1.0.2'],
 )

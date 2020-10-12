@@ -27,9 +27,15 @@ from sklearn.base import clone
 from sklearn.base import is_classifier
 from sklearn.model_selection import check_cv
 from sklearn.model_selection._validation import _fit_and_score
-from sklearn.metrics.scorer import check_scoring
-from sklearn.feature_selection.base import SelectorMixin
-from sklearn.externals.joblib import cpu_count
+from sklearn.metrics import check_scoring
+try:
+    from sklearn.feature_selection import SelectorMixin  # scikit-learn>=0.23.0
+except ImportError:
+    try:
+        from sklearn.feature_selection._base import SelectorMixin  # scikit-learn==0.22.*
+    except ImportError:
+        from sklearn.feature_selection.base import SelectorMixin  # scikit-learn<0.22.0
+from sklearn.utils._joblib import cpu_count
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -272,7 +278,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
     def _fit(self, X, y):
         X, y = check_X_y(X, y, "csr")
         # Initialization
-        cv = check_cv(self.cv, y, is_classifier(self.estimator))
+        cv = check_cv(self.cv, y, classifier=is_classifier(self.estimator))
         scorer = check_scoring(self.estimator, scoring=self.scoring)
         n_features = X.shape[1]
 
