@@ -16,7 +16,6 @@
 """Genetic algorithm for feature selection"""
 
 import multiprocessing
-import random
 import numbers
 import numpy as np
 from sklearn.utils import check_X_y
@@ -108,6 +107,13 @@ def _eaFunction(population, toolbox, cxpb, mutpb, ngen, ngen_no_change=None, sta
             break
 
     return population, logbook
+
+
+def _createIndividual(icls, n, max_features):
+    n_features = np.random.randint(1, max_features + 1)
+    genome = ([1] * n_features) + ([0] * (n - n_features))
+    np.random.shuffle(genome)
+    return icls(genome)
 
 
 def _evalFunction(individual, gaobject, estimator, X, y, cv, scorer, verbose, fit_params,
@@ -305,9 +311,8 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         # Genetic Algorithm
         toolbox = base.Toolbox()
 
-        toolbox.register("attr_bool", random.randint, 0, 1)
-        toolbox.register("individual", tools.initRepeat,
-                         creator.Individual, toolbox.attr_bool, n=n_features)
+        toolbox.register("individual", _createIndividual, creator.Individual, n=n_features,
+                         max_features=max_features)
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
         toolbox.register("evaluate", _evalFunction, gaobject=self, estimator=estimator, X=X, y=y,
                          cv=cv, scorer=scorer, verbose=self.verbose, fit_params=self.fit_params,
