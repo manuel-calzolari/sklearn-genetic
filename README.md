@@ -11,8 +11,9 @@ pip install sklearn-genetic
 ```
 
 ## Requirements
+
 * Python >= 2.7
-* scikit-learn >= 0.18
+* scikit-learn >= 0.20.3
 * DEAP >= 1.0.2
 
 ## Example
