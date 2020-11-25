@@ -88,3 +88,7 @@ BibTeX entry:
   url          = {https://doi.org/10.5281/zenodo.4081754}
 }
 ```
+
+## See also
+
+* [shapicant](https://github.com/manuel-calzolari/shapicant), a feature selection package based on SHAP and target permutation, for pandas and Spark
