@@ -6,8 +6,16 @@ Genetic algorithms mimic the process of natural selection to search for optimal 
 
 ## Installation
 
+The easiest way to install sklearn-genetic is using `pip`
+
 ```bash
 pip install sklearn-genetic
+```
+
+or `conda`
+
+```bash
+conda install -c conda-forge sklearn-genetic
 ```
 
 ## Requirements
