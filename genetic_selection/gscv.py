@@ -24,8 +24,7 @@ from sklearn.base import BaseEstimator
 from sklearn.base import MetaEstimatorMixin
 from sklearn.base import clone
 from sklearn.base import is_classifier
-from sklearn.model_selection import check_cv
-from sklearn.model_selection._validation import _fit_and_score
+from sklearn.model_selection import check_cv, cross_val_score
 from sklearn.metrics import check_scoring
 try:
     from sklearn.feature_selection import SelectorMixin  # scikit-learn>=0.23.0
@@ -116,8 +115,8 @@ def _createIndividual(icls, n, max_features):
     return icls(genome)
 
 
-def _evalFunction(individual, gaobject, estimator, X, y, cv, scorer, verbose, fit_params,
-                  max_features, caching):
+def _evalFunction(individual, gaobject, estimator, X, y, cv, scorer, fit_params, max_features,
+                  caching):
     individual_sum = np.sum(individual, axis=0)
     if individual_sum == 0 or individual_sum > max_features:
         return -10000, individual_sum
@@ -125,12 +124,8 @@ def _evalFunction(individual, gaobject, estimator, X, y, cv, scorer, verbose, fi
     if caching and individual_tuple in gaobject.scores_cache:
         return gaobject.scores_cache[individual_tuple], individual_sum
     X_selected = X[:, np.array(individual, dtype=np.bool)]
-    scores = []
-    for train, test in cv.split(X, y):
-        score = _fit_and_score(estimator=estimator, X=X_selected, y=y, scorer=scorer,
-                               train=train, test=test, verbose=verbose, parameters=None,
-                               fit_params=fit_params)
-        scores.append(score)
+    scores = cross_val_score(estimator=estimator, X=X_selected, y=y, scoring=scorer, cv=cv,
+                             fit_params=fit_params)
     scores_mean = np.mean(scores)
     if caching:
         gaobject.scores_cache[individual_tuple] = scores_mean
@@ -315,7 +310,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
                          max_features=max_features)
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
         toolbox.register("evaluate", _evalFunction, gaobject=self, estimator=estimator, X=X, y=y,
-                         cv=cv, scorer=scorer, verbose=self.verbose, fit_params=self.fit_params,
+                         cv=cv, scorer=scorer, fit_params=self.fit_params,
                          max_features=max_features, caching=self.caching)
         toolbox.register("mate", tools.cxUniform, indpb=self.crossover_independent_proba)
         toolbox.register("mutate", tools.mutFlipBit, indpb=self.mutation_independent_proba)
