@@ -120,20 +120,20 @@ def _createIndividual(icls, n, max_features):
     return icls(genome)
 
 
-def _evalFunction(individual, gaobject, estimator, X, y, cv, scorer, fit_params, max_features,
-                  caching):
+def _evalFunction(individual, estimator, X, y, cv, scorer, fit_params, max_features,
+                  caching, scores_cache={}):
     individual_sum = np.sum(individual, axis=0)
     if individual_sum == 0 or individual_sum > max_features:
         return -10000, individual_sum
     individual_tuple = tuple(individual)
-    if caching and individual_tuple in gaobject.scores_cache:
-        return gaobject.scores_cache[individual_tuple], individual_sum
+    if caching and individual_tuple in scores_cache:
+        return scores_cache[individual_tuple], individual_sum
     X_selected = X[:, np.array(individual, dtype=np.bool)]
     scores = cross_val_score(estimator=estimator, X=X_selected, y=y, scoring=scorer, cv=cv,
                              fit_params=fit_params)
     scores_mean = np.mean(scores)
     if caching:
-        gaobject.scores_cache[individual_tuple] = scores_mean
+        scores_cache[individual_tuple] = scores_mean
     return scores_mean, individual_sum
 
 
@@ -314,9 +314,9 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         toolbox.register("individual", _createIndividual, creator.Individual, n=n_features,
                          max_features=max_features)
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-        toolbox.register("evaluate", _evalFunction, gaobject=self, estimator=estimator, X=X, y=y,
-                         cv=cv, scorer=scorer, fit_params=self.fit_params,
-                         max_features=max_features, caching=self.caching)
+        toolbox.register("evaluate", _evalFunction, estimator=estimator, X=X, y=y, cv=cv,
+                         scorer=scorer, fit_params=self.fit_params, max_features=max_features,
+                         caching=self.caching, scores_cache=self.scores_cache)
         toolbox.register("mate", tools.cxUniform, indpb=self.crossover_independent_proba)
         toolbox.register("mutate", tools.mutFlipBit, indpb=self.mutation_independent_proba)
         toolbox.register("select", tools.selTournament, tournsize=self.tournament_size)
