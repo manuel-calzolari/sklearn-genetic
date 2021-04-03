@@ -72,20 +72,20 @@ if __name__ == "__main__":
 
 ## Citing sklearn-genetic
 
-Manuel Calzolari. (2021, April 3). manuel-calzolari/sklearn-genetic: sklearn-genetic 0.4.0 (Version 0.4.0). Zenodo. http://doi.org/10.5281/zenodo.4661178
+Manuel Calzolari. (2021, April 3). manuel-calzolari/sklearn-genetic: sklearn-genetic 0.4.1 (Version 0.4.1). Zenodo. http://doi.org/10.5281/zenodo.4661248
 
 BibTeX entry:
 ```
-@software{manuel_calzolari_2021_4661178,
+@software{manuel_calzolari_2021_4661248,
   author       = {Manuel Calzolari},
   title        = {{manuel-calzolari/sklearn-genetic: sklearn-genetic 
-                   0.4.0}},
+                   0.4.1}},
   month        = apr,
   year         = 2021,
   publisher    = {Zenodo},
-  version      = {0.4.0},
-  doi          = {10.5281/zenodo.4661178},
-  url          = {https://doi.org/10.5281/zenodo.4661178}
+  version      = {0.4.1},
+  doi          = {10.5281/zenodo.4661248},
+  url          = {https://doi.org/10.5281/zenodo.4661248}
 }
 ```
 
