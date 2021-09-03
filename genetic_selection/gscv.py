@@ -40,7 +40,7 @@ from deap import creator
 from deap import tools
 
 
-creator.create("Fitness", base.Fitness, weights=(1.0, -1.0))
+creator.create("Fitness", base.Fitness, weights=(1.0, -1.0, -1.0))
 creator.create("Individual", list, fitness=creator.Fitness)
 
 
@@ -124,17 +124,18 @@ def _evalFunction(individual, estimator, X, y, cv, scorer, fit_params, max_featu
                   caching, scores_cache={}):
     individual_sum = np.sum(individual, axis=0)
     if individual_sum == 0 or individual_sum > max_features:
-        return -10000, individual_sum
+        return -10000, individual_sum, 10000
     individual_tuple = tuple(individual)
     if caching and individual_tuple in scores_cache:
-        return scores_cache[individual_tuple], individual_sum
+        return scores_cache[individual_tuple][0], individual_sum, scores_cache[individual_tuple][1]
     X_selected = X[:, np.array(individual, dtype=np.bool)]
     scores = cross_val_score(estimator=estimator, X=X_selected, y=y, scoring=scorer, cv=cv,
                              fit_params=fit_params)
     scores_mean = np.mean(scores)
+    scores_std = np.std(scores)
     if caching:
-        scores_cache[individual_tuple] = scores_mean
-    return scores_mean, individual_sum
+        scores_cache[individual_tuple] = [scores_mean, scores_std]
+    return scores_mean, individual_sum, scores_std
 
 
 class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
@@ -353,7 +354,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         self.estimator_ = clone(self.estimator)
         self.estimator_.fit(X[:, support_], y)
 
-        self.generation_scores_ = np.array([score for score, _ in log.select("max")])
+        self.generation_scores_ = np.array([score for score, _, _ in log.select("max")])
         self.n_features_ = support_.sum()
         self.support_ = support_
 
