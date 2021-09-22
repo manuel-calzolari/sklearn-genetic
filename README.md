@@ -70,25 +70,6 @@ if __name__ == "__main__":
 
 ```
 
-## Citing sklearn-genetic
-
-Manuel Calzolari. (2021, April 3). manuel-calzolari/sklearn-genetic: sklearn-genetic 0.4.1 (Version 0.4.1). Zenodo. http://doi.org/10.5281/zenodo.4661248
-
-BibTeX entry:
-```
-@software{manuel_calzolari_2021_4661248,
-  author       = {Manuel Calzolari},
-  title        = {{manuel-calzolari/sklearn-genetic: sklearn-genetic 
-                   0.4.1}},
-  month        = apr,
-  year         = 2021,
-  publisher    = {Zenodo},
-  version      = {0.4.1},
-  doi          = {10.5281/zenodo.4661248},
-  url          = {https://doi.org/10.5281/zenodo.4661248}
-}
-```
-
 ## See also
 
 * [shapicant](https://github.com/manuel-calzolari/shapicant), a feature selection package based on SHAP and target permutation, for pandas and Spark
