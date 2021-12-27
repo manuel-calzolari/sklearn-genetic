@@ -26,13 +26,7 @@ from sklearn.base import clone
 from sklearn.base import is_classifier
 from sklearn.model_selection import check_cv, cross_val_score
 from sklearn.metrics import check_scoring
-try:
-    from sklearn.feature_selection import SelectorMixin  # scikit-learn>=0.23.0
-except ImportError:
-    try:
-        from sklearn.feature_selection._base import SelectorMixin  # scikit-learn==0.22.*
-    except ImportError:
-        from sklearn.feature_selection.base import SelectorMixin  # scikit-learn<0.22.0
+from sklearn.feature_selection import SelectorMixin
 from sklearn.utils._joblib import cpu_count
 from deap import algorithms
 from deap import base

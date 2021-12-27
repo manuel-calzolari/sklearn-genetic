@@ -20,14 +20,13 @@ conda install -c conda-forge sklearn-genetic
 
 ## Requirements
 
-* Python >= 2.7
-* scikit-learn >= 0.20.3
-* DEAP >= 1.0.2
+* Python (>= 3.6)
+* scikit-learn (>= 0.23)
+* DEAP (>= 1.0.2)
 
 ## Example
 
 ```python
-from __future__ import print_function
 import numpy as np
 from sklearn import datasets, linear_model
 
