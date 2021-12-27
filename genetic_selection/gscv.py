@@ -342,9 +342,11 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         if self.verbose > 0:
             print("Selecting features with genetic algorithm.")
 
-        _, log = _eaFunction(pop, toolbox, cxpb=self.crossover_proba, mutpb=self.mutation_proba,
-                             ngen=self.n_generations, ngen_no_change=self.n_gen_no_change,
-                             stats=stats, halloffame=hof, verbose=self.verbose)
+        with np.printoptions(precision=6, suppress=True, sign=" "):
+            _, log = _eaFunction(pop, toolbox, cxpb=self.crossover_proba,
+                                 mutpb=self.mutation_proba, ngen=self.n_generations,
+                                 ngen_no_change=self.n_gen_no_change,
+                                 stats=stats, halloffame=hof, verbose=self.verbose)
         if self.n_jobs != 1:
             pool.close()
             pool.join()
