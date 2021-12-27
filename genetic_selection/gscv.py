@@ -15,8 +15,8 @@
 
 """Genetic algorithm for feature selection"""
 
-import multiprocessing
 import numbers
+import warnings
 import numpy as np
 from sklearn.utils import check_X_y
 from sklearn.utils.metaestimators import if_delegate_has_method
@@ -27,15 +27,17 @@ from sklearn.base import is_classifier
 from sklearn.model_selection import check_cv, cross_val_score
 from sklearn.metrics import check_scoring
 from sklearn.feature_selection import SelectorMixin
-from sklearn.utils._joblib import cpu_count
 from deap import algorithms
 from deap import base
 from deap import creator
 from deap import tools
+from loky import cpu_count
+from loky import get_reusable_executor
 
 
-creator.create("Fitness", base.Fitness, weights=(1.0, -1.0, -1.0))
-creator.create("Individual", list, fitness=creator.Fitness)
+def _prepare_creator():
+    creator.create("Fitness", base.Fitness, weights=(1.0, -1.0, -1.0))
+    creator.create("Individual", list, fitness=creator.Fitness)
 
 
 def _eaFunction(population, toolbox, cxpb, mutpb, ngen, ngen_no_change=None, stats=None,
@@ -309,6 +311,8 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         estimator = clone(self.estimator)
 
         # Genetic Algorithm
+        _prepare_creator()
+
         toolbox = base.Toolbox()
 
         toolbox.register("individual", _createIndividual, creator.Individual, n=n_features,
@@ -322,14 +326,20 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         toolbox.register("mutate", tools.mutFlipBit, indpb=self.mutation_independent_proba)
         toolbox.register("select", tools.selTournament, tournsize=self.tournament_size)
 
+        def supermap(*args, **kwargs):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                _prepare_creator()
+            return pool.map(*args, **kwargs)
+
         if self.n_jobs == 0:
             raise ValueError("n_jobs == 0 has no meaning.")
         elif self.n_jobs > 1:
-            pool = multiprocessing.Pool(processes=self.n_jobs)
-            toolbox.register("map", pool.map)
+            pool = get_reusable_executor(self.n_jobs, reuse=True)
+            toolbox.register("map", supermap)
         elif self.n_jobs < 0:
-            pool = multiprocessing.Pool(processes=max(cpu_count() + 1 + self.n_jobs, 1))
-            toolbox.register("map", pool.map)
+            pool = get_reusable_executor(max(cpu_count() + 1 + self.n_jobs, 1), reuse=True)
+            toolbox.register("map", supermap)
 
         pop = toolbox.population(n=self.n_population)
         hof = tools.HallOfFame(1, similar=np.array_equal)
@@ -347,9 +357,6 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
                                  mutpb=self.mutation_proba, ngen=self.n_generations,
                                  ngen_no_change=self.n_gen_no_change,
                                  stats=stats, halloffame=hof, verbose=self.verbose)
-        if self.n_jobs != 1:
-            pool.close()
-            pool.join()
 
         # Set final attributes
         support_ = np.array(hof, dtype=np.bool)[0]
