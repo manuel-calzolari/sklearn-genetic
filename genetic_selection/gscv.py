@@ -279,6 +279,11 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
 
         y : array-like, shape = [n_samples]
             The target values.
+
+        groups : array-like, shape = [n_samples], optional
+            Group labels for the samples used while splitting the dataset into
+            train/test set. Only used in conjunction with a "Group" `cv`
+            instance (e.g., `GroupKFold`).
         """
         return self._fit(X, y, groups)
 
