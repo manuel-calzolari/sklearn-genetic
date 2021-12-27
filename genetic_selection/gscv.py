@@ -120,7 +120,7 @@ def _createIndividual(icls, n, max_features):
     return icls(genome)
 
 
-def _evalFunction(individual, estimator, X, y, cv, scorer, fit_params, max_features,
+def _evalFunction(individual, estimator, X, y, groups, cv, scorer, fit_params, max_features,
                   caching, scores_cache={}):
     individual_sum = np.sum(individual, axis=0)
     if individual_sum == 0 or individual_sum > max_features:
@@ -129,8 +129,8 @@ def _evalFunction(individual, estimator, X, y, cv, scorer, fit_params, max_featu
     if caching and individual_tuple in scores_cache:
         return scores_cache[individual_tuple][0], individual_sum, scores_cache[individual_tuple][1]
     X_selected = X[:, np.array(individual, dtype=np.bool)]
-    scores = cross_val_score(estimator=estimator, X=X_selected, y=y, scoring=scorer, cv=cv,
-                             fit_params=fit_params)
+    scores = cross_val_score(estimator=estimator, X=X_selected, y=y, groups=groups, scoring=scorer,
+                             cv=cv, fit_params=fit_params)
     scores_mean = np.mean(scores)
     scores_std = np.std(scores)
     if caching:
@@ -268,7 +268,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
     def _estimator_type(self):
         return self.estimator._estimator_type
 
-    def fit(self, X, y):
+    def fit(self, X, y, groups=None):
         """Fit the GeneticSelectionCV model and then the underlying estimator on the selected
            features.
 
@@ -280,9 +280,9 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         y : array-like, shape = [n_samples]
             The target values.
         """
-        return self._fit(X, y)
+        return self._fit(X, y, groups)
 
-    def _fit(self, X, y):
+    def _fit(self, X, y, groups=None):
         X, y = check_X_y(X, y, "csr")
         # Initialization
         cv = check_cv(self.cv, y, classifier=is_classifier(self.estimator))
@@ -315,9 +315,10 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         toolbox.register("individual", _createIndividual, creator.Individual, n=n_features,
                          max_features=max_features)
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-        toolbox.register("evaluate", _evalFunction, estimator=estimator, X=X, y=y, cv=cv,
-                         scorer=scorer, fit_params=self.fit_params, max_features=max_features,
-                         caching=self.caching, scores_cache=self.scores_cache)
+        toolbox.register("evaluate", _evalFunction, estimator=estimator, X=X, y=y,
+                         groups=groups, cv=cv, scorer=scorer, fit_params=self.fit_params,
+                         max_features=max_features, caching=self.caching,
+                         scores_cache=self.scores_cache)
         toolbox.register("mate", tools.cxUniform, indpb=self.crossover_independent_proba)
         toolbox.register("mutate", tools.mutFlipBit, indpb=self.mutation_independent_proba)
         toolbox.register("select", tools.selTournament, tournsize=self.tournament_size)
