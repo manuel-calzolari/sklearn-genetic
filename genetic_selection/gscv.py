@@ -15,8 +15,8 @@
 
 """Genetic algorithm for feature selection"""
 
-import multiprocessing
 import numbers
+import multiprocess
 import numpy as np
 from sklearn.utils import check_X_y
 from sklearn.utils.metaestimators import if_delegate_has_method
@@ -325,10 +325,10 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         if self.n_jobs == 0:
             raise ValueError("n_jobs == 0 has no meaning.")
         elif self.n_jobs > 1:
-            pool = multiprocessing.Pool(processes=self.n_jobs)
+            pool = multiprocess.Pool(processes=self.n_jobs)
             toolbox.register("map", pool.map)
         elif self.n_jobs < 0:
-            pool = multiprocessing.Pool(processes=max(cpu_count() + 1 + self.n_jobs, 1))
+            pool = multiprocess.Pool(processes=max(cpu_count() + 1 + self.n_jobs, 1))
             toolbox.register("map", pool.map)
 
         pop = toolbox.population(n=self.n_population)

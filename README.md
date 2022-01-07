@@ -22,7 +22,8 @@ conda install -c conda-forge sklearn-genetic
 
 * Python (>= 3.6)
 * scikit-learn (>= 0.23)
-* DEAP (>= 1.0.2)
+* deap (>= 1.0.2)
+* multiprocess
 
 ## Example
 
