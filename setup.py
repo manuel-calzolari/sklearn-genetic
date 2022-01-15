@@ -11,7 +11,7 @@ with open(path.join(here, 'genetic_selection', '__init__.py'), encoding='utf8') 
     version = re.search(r"__version__ = '(.*?)'", f.read()).group(1)
 
 # Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
