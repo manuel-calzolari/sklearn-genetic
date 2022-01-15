@@ -1,12 +1,12 @@
 .. -*- mode: rst -*-
 
-|PyPi|_ |Anaconda|_ |ReadTheDocs|_
+|PyPi|_ |Conda|_ |ReadTheDocs|_
 
 .. |PyPi| image:: https://img.shields.io/pypi/v/sklearn-genetic?style=flat-square
 .. _PyPi: https://pypi.org/project/sklearn-genetic
 
-.. |Anaconda| image:: https://anaconda.org/conda-forge/sklearn-genetic/badges/version.svg
-.. _Anaconda: https://anaconda.org/conda-forge/sklearn-genetic
+.. |Conda| image:: https://img.shields.io/conda/v/conda-forge/sklearn-genetic?style=flat-square
+.. _Conda: https://anaconda.org/conda-forge/sklearn-genetic
 
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/sklearn-genetic/badge/?version=latest&style=flat-square
 .. _ReadTheDocs: https://sklearn-genetic.readthedocs.io/en/latest/?badge=latest
