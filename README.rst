@@ -11,21 +11,19 @@
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/sklearn-genetic/badge/?version=latest&style=flat-square
 .. _ReadTheDocs: https://sklearn-genetic.readthedocs.io/en/latest/?badge=latest
 
-===============
+***************
 sklearn-genetic
-===============
+***************
 
 **sklearn-genetic** is a genetic feature selection module for scikit-learn.
 
 Genetic algorithms mimic the process of natural selection to search for optimal values of a function.
 
-------------
 Installation
-------------
+============
 
-^^^^^^^^^^^^
 Dependencies
-^^^^^^^^^^^^
+------------
 
 sklearn-genetic requires:
 
@@ -35,9 +33,8 @@ sklearn-genetic requires:
 - numpy
 - multiprocess
 
-^^^^^^^^^^^^^^^^^
 User installation
-^^^^^^^^^^^^^^^^^
+-----------------
 
 The easiest way to install sklearn-genetic is using :code:`pip`
 
@@ -51,14 +48,12 @@ or :code:`conda`
 
     conda install -c conda-forge sklearn-genetic
 
--------------
 Documentation
--------------
+=============
 
 Installation documentation, API reference and examples can be found on the `documentation <https://sklearn-genetic.readthedocs.io>`_.
 
---------
 See also
---------
+========
 
 - `shapicant <https://github.com/manuel-calzolari/shapicant>`_, a feature selection package based on SHAP and target permutation, for pandas and Spark

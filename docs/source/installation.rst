@@ -1,10 +1,8 @@
-------------
 Installation
-------------
+============
 
-^^^^^^^^^^^^
 Dependencies
-^^^^^^^^^^^^
+------------
 
 sklearn-genetic requires:
 
@@ -14,9 +12,8 @@ sklearn-genetic requires:
 - numpy
 - multiprocess
 
-^^^^^^^^^^^^^^^^^
 User installation
-^^^^^^^^^^^^^^^^^
+-----------------
 
 The easiest way to install sklearn-genetic is using :code:`pip`
 
