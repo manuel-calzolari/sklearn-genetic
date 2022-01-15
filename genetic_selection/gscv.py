@@ -153,9 +153,6 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         :class:`StratifiedKFold` used. If the estimator is a classifier
         or if ``y`` is neither binary nor multiclass, :class:`KFold` is used.
 
-        Refer :ref:`User Guide <cross_validation>` for the various
-        cross-validation strategies that can be used here.
-
     scoring : string, callable or None, optional, default: None
         A string (see model evaluation documentation) or
         a scorer callable object / function with signature
