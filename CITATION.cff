@@ -5,7 +5,7 @@ authors:
   given-names: "Manuel"
   orcid: "https://orcid.org/0000-0002-4625-4888"
 title: "sklearn-genetic"
-version: 0.4.1
-doi: 10.5281/zenodo.4661248
-date-released: 2021-04-03
+version: 0.5.1
+doi: 10.5281/zenodo.5854662
+date-released: 2022-01-15
 url: "https://github.com/manuel-calzolari/sklearn-genetic"
