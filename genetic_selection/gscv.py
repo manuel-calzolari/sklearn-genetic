@@ -260,8 +260,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         return self.estimator._estimator_type
 
     def fit(self, X, y, groups=None):
-        """Fit the GeneticSelectionCV model and then the underlying estimator on the selected
-           features.
+        """Fit the GeneticSelectionCV model and the underlying estimator on the selected features.
 
         Parameters
         ----------
@@ -361,8 +360,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
 
     @if_delegate_has_method(delegate='estimator')
     def predict(self, X):
-        """Reduce X to the selected features and then predict using the
-           underlying estimator.
+        """Reduce X to the selected features and then predict using the underlying estimator.
 
         Parameters
         ----------
@@ -378,8 +376,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
 
     @if_delegate_has_method(delegate='estimator')
     def score(self, X, y):
-        """Reduce X to the selected features and then return the score of the
-           underlying estimator.
+        """Reduce X to the selected features and return the score of the underlying estimator.
 
         Parameters
         ----------
