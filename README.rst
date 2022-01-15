@@ -8,7 +8,7 @@
 .. |Anaconda| image:: https://anaconda.org/conda-forge/sklearn-genetic/badges/version.svg
 .. _Anaconda: https://anaconda.org/conda-forge/sklearn-genetic
 
-.. |ReadTheDocs| image:: https://readthedocs.org/projects/sklearn-genetic/badge/?version=latest
+.. |ReadTheDocs| image:: https://readthedocs.org/projects/sklearn-genetic/badge/?version=latest&style=flat-square
 .. _ReadTheDocs: https://sklearn-genetic.readthedocs.io/en/latest/?badge=latest
 
 ===============
