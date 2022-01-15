@@ -19,7 +19,7 @@ setup(
     version=version,
     description='Genetic feature selection module for scikit-learn',
     long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description_content_type='text/x-rst',
     url='https://github.com/manuel-calzolari/sklearn-genetic',
     download_url='https://github.com/manuel-calzolari/sklearn-genetic/releases',
     author='Manuel Calzolari',
