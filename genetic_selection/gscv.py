@@ -32,6 +32,7 @@ from deap import algorithms
 from deap import base
 from deap import creator
 from deap import tools
+from tqdm import tqdm
 
 
 creator.create("Fitness", base.Fitness, weights=(1.0, -1.0, -1.0))
@@ -45,6 +46,7 @@ def _eaFunction(population, toolbox, cxpb, mutpb, ngen, ngen_no_change=None, sta
 
     # Evaluate the individuals with an invalid fitness
     invalid_ind = [ind for ind in population if not ind.fitness.valid]
+    invalid_ind = tqdm(invalid_ind) if verbose else invalid_ind
     fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
     for ind, fit in zip(invalid_ind, fitnesses):
         ind.fitness.values = fit
@@ -71,6 +73,7 @@ def _eaFunction(population, toolbox, cxpb, mutpb, ngen, ngen_no_change=None, sta
 
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+        invalid_ind = tqdm(invalid_ind) if verbose else invalid_ind
         fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
