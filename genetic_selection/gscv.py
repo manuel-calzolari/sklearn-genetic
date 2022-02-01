@@ -32,7 +32,7 @@ from deap import algorithms
 from deap import base
 from deap import creator
 from deap import tools
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 
 creator.create("Fitness", base.Fitness, weights=(1.0, -1.0, -1.0))
