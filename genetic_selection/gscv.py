@@ -123,6 +123,10 @@ def _evalFunction(individual, estimator, X, y, groups, cv, scorer, fit_params, m
     if caching and individual_tuple in scores_cache:
         return scores_cache[individual_tuple][0], individual_sum, scores_cache[individual_tuple][1]
     X_selected = X[:, np.array(individual, dtype=np.bool)]
+
+    if hasattr(estimator, 'n_components'):
+        setattr(estimator, 'n_components', min(_num_features(X_selected), estimator.n_components))
+        
     scores = cross_val_score(estimator=estimator, X=X_selected, y=y, groups=groups, scoring=scorer,
                              cv=cv, fit_params=fit_params)
     scores_mean = np.mean(scores)
