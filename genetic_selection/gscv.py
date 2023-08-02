@@ -27,6 +27,7 @@ from sklearn.base import is_classifier
 from sklearn.model_selection import check_cv, cross_val_score
 from sklearn.metrics import check_scoring
 from sklearn.feature_selection import SelectorMixin
+from sklearn.utils.validation import _num_features
 from sklearn.utils._joblib import cpu_count
 from deap import algorithms
 from deap import base
