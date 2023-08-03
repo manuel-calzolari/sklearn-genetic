@@ -108,8 +108,8 @@ def _eaFunction(population, toolbox, cxpb, mutpb, ngen, ngen_no_change=None, sta
     return population, logbook
 
 
-def _createIndividual(icls, n, max_features):
-    n_features = np.random.randint(1, max_features + 1)
+def _createIndividual(icls, n, max_features, min_features):
+    n_features = np.random.randint(min_features, max_features + 1)
     genome = ([1] * n_features) + ([0] * (n - n_features))
     np.random.shuffle(genome)
     return icls(genome)
@@ -332,7 +332,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         toolbox = base.Toolbox()
 
         toolbox.register("individual", _createIndividual, creator.Individual, n=n_features,
-                         max_features=max_features)
+                         max_features=max_features, min_features=min_features)
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
         toolbox.register("evaluate", _evalFunction, estimator=estimator, X=X, y=y,
                          groups=groups, cv=cv, scorer=scorer, fit_params=self.fit_params,
