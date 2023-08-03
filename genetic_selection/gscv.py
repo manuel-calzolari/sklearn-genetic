@@ -316,10 +316,10 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
                                  .format(n_features, self.min_features))
             min_features = self.min_features
         else:
-            min_features = n_features
+            min_features = 1
           
         if max_features < min_features:
-            max_features = min_features
+            max_features = n_features
       
         if not isinstance(self.n_gen_no_change, (numbers.Integral, np.integer, type(None))):
             raise ValueError("'n_gen_no_change' should either be None or an integer."
