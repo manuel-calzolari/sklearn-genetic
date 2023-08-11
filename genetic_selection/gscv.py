@@ -301,6 +301,14 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         self.caching = caching
         self.scores_cache = {}
 
+    def _check_estimator_method(self, method):
+        """
+        Check if the underlying estimator has a given method.
+        """
+        return hasattr(self.estimator, method) and callable(
+            getattr(self.estimator, method)
+        )
+
     @property
     def _estimator_type(self):
         return self.estimator._estimator_type
@@ -435,7 +443,6 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
 
         return self
 
-    @if_delegate_has_method(delegate="estimator")
     def predict(self, X):
         """Reduce X to the selected features and then predict using the underlying estimator.
 
@@ -449,9 +456,14 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         y : array of shape [n_samples]
             The predicted target values.
         """
+        if not self._check_estimator_method("predict"):
+            raise AttributeError(
+                "predict is not available for estimator {}".format(
+                    self.estimator_.__class__.__name__
+                )
+            )
         return self.estimator_.predict(self.transform(X))
 
-    @if_delegate_has_method(delegate="estimator")
     def score(self, X, y):
         """Reduce X to the selected features and return the score of the underlying estimator.
 
@@ -463,19 +475,40 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         y : array of shape [n_samples]
             The target values.
         """
+        if not self._check_estimator_method("score"):
+            raise AttributeError(
+                "score is not available for estimator {}".format(
+                    self.estimator_.__class__.__name__
+                )
+            )
         return self.estimator_.score(self.transform(X), y)
 
     def _get_support_mask(self):
         return self.support_
 
-    @if_delegate_has_method(delegate="estimator")
     def decision_function(self, X):
+        if not self._check_estimator_method("decision_function"):
+            raise AttributeError(
+                "decision_function is not available for estimator {}".format(
+                    self.estimator_.__class__.__name__
+                )
+            )
         return self.estimator_.decision_function(self.transform(X))
 
-    @if_delegate_has_method(delegate="estimator")
     def predict_proba(self, X):
+        if not self._check_estimator_method("predict_proba"):
+            raise AttributeError(
+                "predict_proba is not available for estimator {}".format(
+                    self.estimator_.__class__.__name__
+                )
+            )
         return self.estimator_.predict_proba(self.transform(X))
 
-    @if_delegate_has_method(delegate="estimator")
     def predict_log_proba(self, X):
+        if not self._check_estimator_method("predict_log_proba"):
+            raise AttributeError(
+                "predict_log_proba is not available for estimator {}".format(
+                    self.estimator_.__class__.__name__
+                )
+            )
         return self.estimator_.predict_log_proba(self.transform(X))
