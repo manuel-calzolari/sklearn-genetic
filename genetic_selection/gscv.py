@@ -122,7 +122,7 @@ def _evalFunction(individual, estimator, X, y, groups, cv, scorer, fit_params, m
     individual_tuple = tuple(individual)
     if caching and individual_tuple in scores_cache:
         return scores_cache[individual_tuple][0], individual_sum, scores_cache[individual_tuple][1]
-    X_selected = X[:, np.array(individual, dtype=np.bool)]
+    X_selected = X[:, np.array(individual, dtype=bool)]
     scores = cross_val_score(estimator=estimator, X=X_selected, y=y, groups=groups, scoring=scorer,
                              cv=cv, fit_params=fit_params)
     scores_mean = np.mean(scores)
@@ -348,7 +348,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
             pool.join()
 
         # Set final attributes
-        support_ = np.array(hof, dtype=np.bool)[0]
+        support_ = np.array(hof, dtype=bool)[0]
         self.estimator_ = clone(self.estimator)
         self.estimator_.fit(X[:, support_], y)
 
