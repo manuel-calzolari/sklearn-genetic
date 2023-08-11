@@ -145,7 +145,7 @@ def _evalFunction(
             individual_sum,
             scores_cache[individual_tuple][1],
         )
-    X_selected = X[:, np.array(individual, dtype=np.bool)]
+    X_selected = X[:, np.array(individual, dtype=np.bool_)]
     scores = cross_val_score(
         estimator=estimator,
         X=X_selected,
@@ -432,7 +432,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
             pool.join()
 
         # Set final attributes
-        support_ = np.array(hof, dtype=np.bool)[0]
+        support_ = np.array(hof, dtype=np.bool_)[0]
         self.estimator_ = clone(self.estimator)
         self.estimator_.fit(X[:, support_], y)
 

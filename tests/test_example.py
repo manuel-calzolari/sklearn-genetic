@@ -3,9 +3,9 @@ import numpy as np
 from sklearn import datasets, linear_model
 from genetic_selection import GeneticSelectionCV
 
+
 # When using multiple processes (n_jobs != 1), protect the entry point of the program if necessary
 def test_example():
-
     # Set seed for reproducibility
     random.seed(42)
     np.random.seed(42)
