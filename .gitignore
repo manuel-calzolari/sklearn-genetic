@@ -140,3 +140,4 @@ ENV/
 .ropeproject
 
 .mypy_cache
+.pytest_cache

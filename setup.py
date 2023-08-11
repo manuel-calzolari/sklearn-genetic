@@ -4,11 +4,9 @@ from os import path
 
 from setuptools import find_packages, setup
 
-here = path.abspath(path.dirname(__file__))
+from genetic_selection import __version__
 
-# Get the version
-with open(path.join(here, "genetic_selection", "__init__.py"), encoding="utf8") as f:
-    version = re.search(r"__version__ = '(.*?)'", f.read()).group(1)
+here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
 with open(path.join(here, "README.rst"), encoding="utf-8") as f:
@@ -16,7 +14,7 @@ with open(path.join(here, "README.rst"), encoding="utf-8") as f:
 
 setup(
     name="sklearn-genetic",
-    version=version,
+    version=__version__,
     description="Genetic feature selection module for scikit-learn",
     long_description=long_description,
     long_description_content_type="text/x-rst",

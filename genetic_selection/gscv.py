@@ -19,7 +19,6 @@ import numbers
 import multiprocess
 import numpy as np
 from sklearn.utils import check_X_y
-from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.base import BaseEstimator
 from sklearn.base import MetaEstimatorMixin
 from sklearn.base import clone
