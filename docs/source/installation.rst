@@ -6,8 +6,8 @@ Dependencies
 
 sklearn-genetic requires:
 
-- Python (>= 3.6)
-- scikit-learn (>= 0.23)
+- Python (>= 3.7)
+- scikit-learn (>= 1.0)
 - deap (>= 1.0.2)
 - numpy
 - multiprocess

@@ -1,4 +1,4 @@
-scikit-learn>=0.23
+scikit-learn>=1.0
 deap>=1.0.2
 numpy
 multiprocess
