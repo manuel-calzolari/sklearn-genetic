@@ -123,7 +123,7 @@ def _evalFunction(individual, estimator, X, y, groups, cv, scorer, fit_params, m
     individual_tuple = tuple(individual)
     if caching and individual_tuple in scores_cache:
         return scores_cache[individual_tuple][0], individual_sum, scores_cache[individual_tuple][1]
-    X_selected = X[:, np.array(individual, dtype=np.bool)]
+    X_selected = X[:, np.array(individual, dtype=bool)]
 
     if hasattr(estimator, 'n_components'):
         setattr(estimator, 'n_components', min(_num_features(X_selected), estimator.n_components))
