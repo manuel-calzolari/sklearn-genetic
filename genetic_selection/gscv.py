@@ -115,7 +115,7 @@ def _createIndividual(icls, n, max_features, min_features):
 
 
 def _evalFunction(individual, estimator, X, y, groups, cv, scorer, fit_params, max_features, min_features,
-                  caching, scores_cache={}):
+                  caching, scores_cache={}, auto_n_components=False):
     individual_sum = np.sum(individual, axis=0)
     if individual_sum < min_features or individual_sum > max_features:
         return -10000, individual_sum, 10000
@@ -123,7 +123,7 @@ def _evalFunction(individual, estimator, X, y, groups, cv, scorer, fit_params, m
     if caching and individual_tuple in scores_cache:
         return scores_cache[individual_tuple][0], individual_sum, scores_cache[individual_tuple][1]
     X_selected = X[:, np.array(individual, dtype=bool)]
-    if hasattr(estimator, 'n_components') and (self.auto_n_components==True):
+    if hasattr(estimator, 'n_components') and (auto_n_components==True):
         setattr(estimator, 'n_components', min(_num_features(X_selected), estimator.n_components))                    
     scores = cross_val_score(estimator=estimator, X=X_selected, y=y, groups=groups, scoring=scorer,
                              cv=cv, fit_params=fit_params)
@@ -348,7 +348,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         toolbox.register("evaluate", _evalFunction, estimator=estimator, X=X, y=y,
                          groups=groups, cv=cv, scorer=scorer, fit_params=self.fit_params,
                          max_features=max_features, min_features=min_features, caching=self.caching,
-                         scores_cache=self.scores_cache)
+                         scores_cache=self.scores_cache, auto_n_components=self.auto_n_components)
         toolbox.register("mate", tools.cxUniform, indpb=self.crossover_independent_proba)
         toolbox.register("mutate", tools.mutFlipBit, indpb=self.mutation_independent_proba)
         toolbox.register("select", tools.selTournament, tournsize=self.tournament_size)
