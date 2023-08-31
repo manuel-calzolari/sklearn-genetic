@@ -28,6 +28,7 @@ from sklearn.model_selection import check_cv, cross_val_score
 from sklearn.metrics import check_scoring
 from sklearn.feature_selection import SelectorMixin
 from sklearn.utils._joblib import cpu_count
+from sklearn.utils.validation import _num_features
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -125,7 +126,7 @@ def _evalFunction(individual, estimator, X, y, groups, cv, scorer, fit_params, m
     X_selected = X[:, np.array(individual, dtype=bool)]
 
     if hasattr(estimator, 'n_components') and (auto_n_components==True):
-        setattr(estimator, 'n_components', min(np.linalg.matrix_rank(X_selected), estimator.n_components))                    
+        setattr(estimator, 'n_components', min(np.linalg.matrix_rank(X_selected), estimator.n_components))       
     scores = cross_val_score(estimator=estimator, X=X_selected, y=y, groups=groups, scoring=scorer,
                              cv=cv, fit_params=fit_params)
     scores_mean = np.mean(scores)
@@ -386,8 +387,10 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         # Set final attributes
         support_ = np.array(hof, dtype=bool)[0]
         self.estimator_ = clone(self.estimator)
-        self.estimator_.fit(X[:, support_], y)
+        if self.auto_n_components == True:
+            setattr(self.estimator_ , "n_components",  min(np.linalg.matrix_rank(X[:, support_]), self.estimator_ .n_components))
 
+        self.estimator_.fit(X[:, support_], y)
         self.generation_scores_ = np.array([score for score, _, _ in log.select("max")])
         self.n_features_ = support_.sum()
         self.support_ = support_
