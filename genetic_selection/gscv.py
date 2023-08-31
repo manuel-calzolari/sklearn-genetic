@@ -19,7 +19,7 @@ import numbers
 import multiprocess
 import numpy as np
 from sklearn.utils import check_X_y
-from sklearn.utils.metaestimators import if_delegate_has_method
+from sklearn.utils.metaestimators import available_if
 from sklearn.base import BaseEstimator
 from sklearn.base import MetaEstimatorMixin
 from sklearn.base import clone
@@ -130,6 +130,19 @@ def _evalFunction(individual, estimator, X, y, groups, cv, scorer, fit_params, m
     if caching:
         scores_cache[individual_tuple] = [scores_mean, scores_std]
     return scores_mean, individual_sum, scores_std
+
+
+def _estimator_has(attr):
+    """Check if we can delegate a method to the underlying estimator.
+
+    First, we check the first fitted estimator if available, otherwise we
+    check the unfitted estimator.
+    """
+    return lambda self: (
+        hasattr(self.estimator_, attr)
+        if hasattr(self, "estimator_")
+        else hasattr(self.estimator, attr)
+    )
 
 
 class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
@@ -367,7 +380,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
             pool.join()
 
         # Set final attributes
-        support_ = np.array(hof, dtype=np.bool)[0]
+        support_ = np.array(hof, dtype=bool)[0]
         self.estimator_ = clone(self.estimator)
         self.estimator_.fit(X[:, support_], y)
 
@@ -377,7 +390,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
 
         return self
 
-    @if_delegate_has_method(delegate='estimator')
+    @available_if(_estimator_has("predict"))
     def predict(self, X):
         """Reduce X to the selected features and then predict using the underlying estimator.
 
@@ -393,7 +406,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         """
         return self.estimator_.predict(self.transform(X))
 
-    @if_delegate_has_method(delegate='estimator')
+    @available_if(_estimator_has("score"))
     def score(self, X, y):
         """Reduce X to the selected features and return the score of the underlying estimator.
 
@@ -410,14 +423,14 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
     def _get_support_mask(self):
         return self.support_
 
-    @if_delegate_has_method(delegate='estimator')
+    @available_if(_estimator_has("decision_function"))
     def decision_function(self, X):
         return self.estimator_.decision_function(self.transform(X))
 
-    @if_delegate_has_method(delegate='estimator')
+    @available_if(_estimator_has("predict_proba"))
     def predict_proba(self, X):
         return self.estimator_.predict_proba(self.transform(X))
 
-    @if_delegate_has_method(delegate='estimator')
+    @available_if(_estimator_has("predict_log_proba"))
     def predict_log_proba(self, X):
         return self.estimator_.predict_log_proba(self.transform(X))
