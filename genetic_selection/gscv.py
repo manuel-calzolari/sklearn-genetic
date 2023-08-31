@@ -123,6 +123,8 @@ def _evalFunction(individual, estimator, X, y, groups, cv, scorer, fit_params, m
     if caching and individual_tuple in scores_cache:
         return scores_cache[individual_tuple][0], individual_sum, scores_cache[individual_tuple][1]
     X_selected = X[:, np.array(individual, dtype=bool)]
+    if hasattr(estimator, 'n_components') and (self.auto_n_components==True):
+        setattr(estimator, 'n_components', min(_num_features(X_selected), estimator.n_components))                    
     scores = cross_val_score(estimator=estimator, X=X_selected, y=y, groups=groups, scoring=scorer,
                              cv=cv, fit_params=fit_params)
     scores_mean = np.mean(scores)
@@ -251,7 +253,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
                  verbose=0, n_jobs=1, n_population=300, crossover_proba=0.5, mutation_proba=0.2,
                  n_generations=40, crossover_independent_proba=0.1,
                  mutation_independent_proba=0.05, tournament_size=3, n_gen_no_change=None,
-                 caching=False):
+                 caching=False, auto_n_components=False):
         self.estimator = estimator
         self.cv = cv
         self.scoring = scoring
@@ -270,6 +272,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         self.n_gen_no_change = n_gen_no_change
         self.caching = caching
         self.scores_cache = {}
+        self.auto_n_components = auto_n_components
 
     @property
     def _estimator_type(self):
