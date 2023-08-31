@@ -28,7 +28,6 @@ from sklearn.model_selection import check_cv, cross_val_score
 from sklearn.metrics import check_scoring
 from sklearn.feature_selection import SelectorMixin
 from sklearn.utils._joblib import cpu_count
-from sklearn.utils.validation import _num_features
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -124,8 +123,9 @@ def _evalFunction(individual, estimator, X, y, groups, cv, scorer, fit_params, m
     if caching and individual_tuple in scores_cache:
         return scores_cache[individual_tuple][0], individual_sum, scores_cache[individual_tuple][1]
     X_selected = X[:, np.array(individual, dtype=bool)]
+
     if hasattr(estimator, 'n_components') and (auto_n_components==True):
-        setattr(estimator, 'n_components', min(_num_features(X_selected), estimator.n_components))                    
+        setattr(estimator, 'n_components', min(np.linalg.matrix_rank(X_selected), estimator.n_components))                    
     scores = cross_val_score(estimator=estimator, X=X_selected, y=y, groups=groups, scoring=scorer,
                              cv=cv, fit_params=fit_params)
     scores_mean = np.mean(scores)
