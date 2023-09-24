@@ -28,7 +28,6 @@ from sklearn.model_selection import check_cv, cross_val_score
 from sklearn.metrics import check_scoring
 from sklearn.feature_selection import SelectorMixin
 from sklearn.utils._joblib import cpu_count
-from sklearn.utils.validation import _num_features
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -124,7 +123,6 @@ def _evalFunction(individual, estimator, X, y, groups, cv, scorer, fit_params, m
     if caching and individual_tuple in scores_cache:
         return scores_cache[individual_tuple][0], individual_sum, scores_cache[individual_tuple][1]
     X_selected = X[:, np.array(individual, dtype=bool)]
-
     scores = cross_val_score(estimator=estimator, X=X_selected, y=y, groups=groups, scoring=scorer,
                              cv=cv, fit_params=fit_params)
     scores_mean = np.mean(scores)
@@ -178,6 +176,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
 
     max_features : int or None, optional
         The maximum number of features selected.
+
     min_features : int or None, optional
         The minimum number of features selected.
 
@@ -314,7 +313,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
             max_features = self.max_features
         else:
             max_features = n_features
-          
+
         if self.min_features is not None:
             if not isinstance(self.min_features, numbers.Integral):
                 raise TypeError("'min_features' should be an integer between 1 and {} features."
@@ -327,11 +326,11 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
             min_features = self.min_features
         else:
             min_features = 1
-          
-        if max_features < min_features:
+
+      if max_features < min_features:
             max_features = min_features
-      
-        if not isinstance(self.n_gen_no_change, (numbers.Integral, np.integer, type(None))):
+
+      if not isinstance(self.n_gen_no_change, (numbers.Integral, np.integer, type(None))):
             raise ValueError("'n_gen_no_change' should either be None or an integer."
                              " {} was passed."
                              .format(self.n_gen_no_change))
