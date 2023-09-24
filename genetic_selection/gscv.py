@@ -116,7 +116,7 @@ def _createIndividual(icls, n, max_features, min_features):
 
 
 def _evalFunction(individual, estimator, X, y, groups, cv, scorer, fit_params, max_features, min_features,
-                  caching, scores_cache={}, auto_n_components=False):
+                  caching, scores_cache={}):
     individual_sum = np.sum(individual, axis=0)
     if individual_sum < min_features or individual_sum > max_features:
         return -10000, individual_sum, 10000
@@ -125,8 +125,6 @@ def _evalFunction(individual, estimator, X, y, groups, cv, scorer, fit_params, m
         return scores_cache[individual_tuple][0], individual_sum, scores_cache[individual_tuple][1]
     X_selected = X[:, np.array(individual, dtype=bool)]
 
-    if hasattr(estimator, 'n_components') and (auto_n_components==True):
-        setattr(estimator, 'n_components', min(np.linalg.matrix_rank(X_selected), estimator.n_components))       
     scores = cross_val_score(estimator=estimator, X=X_selected, y=y, groups=groups, scoring=scorer,
                              cv=cv, fit_params=fit_params)
     scores_mean = np.mean(scores)
@@ -255,7 +253,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
                  verbose=0, n_jobs=1, n_population=300, crossover_proba=0.5, mutation_proba=0.2,
                  n_generations=40, crossover_independent_proba=0.1,
                  mutation_independent_proba=0.05, tournament_size=3, n_gen_no_change=None,
-                 caching=False, auto_n_components=False):
+                 caching=False):
         self.estimator = estimator
         self.cv = cv
         self.scoring = scoring
@@ -274,7 +272,6 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         self.n_gen_no_change = n_gen_no_change
         self.caching = caching
         self.scores_cache = {}
-        self.auto_n_components = auto_n_components
 
     @property
     def _estimator_type(self):
@@ -350,7 +347,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         toolbox.register("evaluate", _evalFunction, estimator=estimator, X=X, y=y,
                          groups=groups, cv=cv, scorer=scorer, fit_params=self.fit_params,
                          max_features=max_features, min_features=min_features, caching=self.caching,
-                         scores_cache=self.scores_cache, auto_n_components=self.auto_n_components)
+                         scores_cache=self.scores_cache)
         toolbox.register("mate", tools.cxUniform, indpb=self.crossover_independent_proba)
         toolbox.register("mutate", tools.mutFlipBit, indpb=self.mutation_independent_proba)
         toolbox.register("select", tools.selTournament, tournsize=self.tournament_size)
@@ -387,8 +384,6 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         # Set final attributes
         support_ = np.array(hof, dtype=bool)[0]
         self.estimator_ = clone(self.estimator)
-        if self.auto_n_components == True:
-            setattr(self.estimator_ , "n_components",  min(np.linalg.matrix_rank(X[:, support_]), self.estimator_ .n_components))
 
         self.estimator_.fit(X[:, support_], y)
         self.generation_scores_ = np.array([score for score, _, _ in log.select("max")])
