@@ -383,7 +383,6 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         # Set final attributes
         support_ = np.array(hof, dtype=bool)[0]
         self.estimator_ = clone(self.estimator)
-
         self.estimator_.fit(X[:, support_], y)
         self.generation_scores_ = np.array([score for score, _, _ in log.select("max")])
         self.n_features_ = support_.sum()
