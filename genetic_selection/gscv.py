@@ -327,10 +327,10 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         else:
             min_features = 1
 
-      if max_features < min_features:
+        if max_features < min_features:
             max_features = min_features
 
-      if not isinstance(self.n_gen_no_change, (numbers.Integral, np.integer, type(None))):
+        if not isinstance(self.n_gen_no_change, (numbers.Integral, np.integer, type(None))):
             raise ValueError("'n_gen_no_change' should either be None or an integer."
                              " {} was passed."
                              .format(self.n_gen_no_change))
@@ -384,6 +384,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         support_ = np.array(hof, dtype=bool)[0]
         self.estimator_ = clone(self.estimator)
         self.estimator_.fit(X[:, support_], y)
+
         self.generation_scores_ = np.array([score for score, _, _ in log.select("max")])
         self.n_features_ = support_.sum()
         self.support_ = support_
