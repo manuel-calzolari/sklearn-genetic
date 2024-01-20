@@ -107,17 +107,17 @@ def _eaFunction(population, toolbox, cxpb, mutpb, ngen, ngen_no_change=None, sta
     return population, logbook
 
 
-def _createIndividual(icls, n, max_features):
-    n_features = np.random.randint(1, max_features + 1)
+def _createIndividual(icls, n, max_features, min_features):
+    n_features = np.random.randint(min_features, max_features + 1)
     genome = ([1] * n_features) + ([0] * (n - n_features))
     np.random.shuffle(genome)
     return icls(genome)
 
 
-def _evalFunction(individual, estimator, X, y, groups, cv, scorer, fit_params, max_features,
+def _evalFunction(individual, estimator, X, y, groups, cv, scorer, fit_params, max_features, min_features,
                   caching, scores_cache={}):
     individual_sum = np.sum(individual, axis=0)
-    if individual_sum == 0 or individual_sum > max_features:
+    if individual_sum < min_features or individual_sum > max_features:
         return -10000, individual_sum, 10000
     individual_tuple = tuple(individual)
     if caching and individual_tuple in scores_cache:
@@ -176,6 +176,9 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
 
     max_features : int or None, optional
         The maximum number of features selected.
+
+    min_features : int or None, optional
+        The minimum number of features selected.
 
     verbose : int, default=0
         Controls verbosity of output.
@@ -245,7 +248,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
     array([ True  True  True  True False False False False False False False False
            False False False False False False False False False False False False], dtype=bool)
     """
-    def __init__(self, estimator, cv=None, scoring=None, fit_params=None, max_features=None,
+    def __init__(self, estimator, cv=None, scoring=None, fit_params=None, max_features=None, min_features=None,
                  verbose=0, n_jobs=1, n_population=300, crossover_proba=0.5, mutation_proba=0.2,
                  n_generations=40, crossover_independent_proba=0.1,
                  mutation_independent_proba=0.05, tournament_size=3, n_gen_no_change=None,
@@ -255,6 +258,7 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         self.scoring = scoring
         self.fit_params = fit_params
         self.max_features = max_features
+        self.min_features = min_features
         self.verbose = verbose
         self.n_jobs = n_jobs
         self.n_population = n_population
@@ -310,7 +314,23 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         else:
             max_features = n_features
 
-        if not isinstance(self.n_gen_no_change, (numbers.Integral, np.integer, type(None))):
+        if self.min_features is not None:
+            if not isinstance(self.min_features, numbers.Integral):
+                raise TypeError("'min_features' should be an integer between 1 and {} features."
+                                " Got {!r} instead."
+                                .format(n_features, self.min_features))
+            elif self.min_features < 1 or self.min_features > n_features:
+                raise ValueError("'min_features' should be between 1 and {} features."
+                                 " Got {} instead."
+                                 .format(n_features, self.min_features))
+            min_features = self.min_features
+        else:
+            min_features = 1
+
+      if max_features < min_features:
+            max_features = min_features
+
+      if not isinstance(self.n_gen_no_change, (numbers.Integral, np.integer, type(None))):
             raise ValueError("'n_gen_no_change' should either be None or an integer."
                              " {} was passed."
                              .format(self.n_gen_no_change))
@@ -321,11 +341,11 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         toolbox = base.Toolbox()
 
         toolbox.register("individual", _createIndividual, creator.Individual, n=n_features,
-                         max_features=max_features)
+                         max_features=max_features, min_features=min_features)
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
         toolbox.register("evaluate", _evalFunction, estimator=estimator, X=X, y=y,
                          groups=groups, cv=cv, scorer=scorer, fit_params=self.fit_params,
-                         max_features=max_features, caching=self.caching,
+                         max_features=max_features, min_features=min_features, caching=self.caching,
                          scores_cache=self.scores_cache)
         toolbox.register("mate", tools.cxUniform, indpb=self.crossover_independent_proba)
         toolbox.register("mutate", tools.mutFlipBit, indpb=self.mutation_independent_proba)
@@ -364,7 +384,6 @@ class GeneticSelectionCV(BaseEstimator, MetaEstimatorMixin, SelectorMixin):
         support_ = np.array(hof, dtype=bool)[0]
         self.estimator_ = clone(self.estimator)
         self.estimator_.fit(X[:, support_], y)
-
         self.generation_scores_ = np.array([score for score, _, _ in log.select("max")])
         self.n_features_ = support_.sum()
         self.support_ = support_
