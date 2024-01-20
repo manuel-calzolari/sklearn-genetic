@@ -8,7 +8,7 @@ here = path.abspath(path.dirname(__file__))
 
 # Get the version
 with open(path.join(here, "genetic_selection", "__init__.py"), encoding="utf8") as f:
-    version = re.search(r"__version__ = '(.*?)'", f.read()).group(1)
+    version = re.search(r'__version__ = "(.*?)"', f.read()).group(1)
 
 # Get the long description from the README file
 with open(path.join(here, "README.rst"), encoding="utf-8") as f:
